@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        target: [x86_64-unknown-linux-gnu]
+        target: [x86_64-unknown-linux-musl]
     steps:
       - uses: actions/checkout@v4
       - name: Install musl tools
@@ -26,6 +26,11 @@ jobs:
         run: rustup target add ${{ matrix.target }}
       - name: Build
         run: cargo build --release --target=${{ matrix.target }}
+      - name: Upload Binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: dse-${{ matrix.target }}
+          path: target/${{ matrix.target }}/release/dse
 
   build-macos:
     runs-on: macos-latest
