@@ -1,6 +1,6 @@
 [package]
 name = "deepseek-cli-engineer-rust"
-version = "0.1.0"
+version = "1.0.0"
 edition = "2021"
 authors = ["Phyuany <phyuany@foxmail.com>"]
 description = "A simplified Rust implementation of DeepSeek Cli Engineer with streaming support"
