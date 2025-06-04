@@ -2,8 +2,8 @@ name: Release Build
 
 on:
   push:
-    branches:
-      - release
+    tags:
+      - "*"
 
 permissions:
   contents: write  # 👈 关键，允许创建 release
@@ -27,8 +27,8 @@ jobs:
       - name: Upload Binary
         uses: actions/upload-artifact@v4
         with:
-          name: dce-${{ matrix.target }}
-          path: target/${{ matrix.target }}/release/dce
+          name: dse-${{ matrix.target }}
+          path: target/${{ matrix.target }}/release/dse
 
   build-macos:
     runs-on: macos-latest
@@ -41,11 +41,14 @@ jobs:
         run: rustup target add ${{ matrix.target }}
       - name: Build
         run: cargo build --release --target=${{ matrix.target }}
+      - name: Codesign binary
+        run: |
+          codesign --force --verbose --sign - target/${{ matrix.target }}/release/dse
       - name: Upload Binary
         uses: actions/upload-artifact@v4
         with:
-          name: dce-${{ matrix.target }}
-          path: target/${{ matrix.target }}/release/dce
+          name: dse-${{ matrix.target }}
+          path: target/${{ matrix.target }}/release/dse
 
   build-windows:
     runs-on: windows-latest
@@ -61,8 +64,8 @@ jobs:
       - name: Upload Binary
         uses: actions/upload-artifact@v4
         with:
-          name: dce-${{ matrix.target }}
-          path: target/${{ matrix.target }}/release/dce.exe
+          name: dse-${{ matrix.target }}
+          path: target/${{ matrix.target }}/release/dse.exe
 
   release:
     needs: [build-linux, build-macos, build-windows]

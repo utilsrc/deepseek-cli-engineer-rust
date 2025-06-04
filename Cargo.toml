@@ -7,7 +7,7 @@ description = "A simplified Rust implementation of DeepSeek Cli Engineer with st
 license = "MIT"
 
 [[bin]]
-name = "dce"
+name = "dse"
 path = "src/main.rs"
 
 [dependencies]
