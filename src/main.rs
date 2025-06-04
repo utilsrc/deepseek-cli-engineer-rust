@@ -4,6 +4,9 @@ use serde::{Deserialize, Serialize};
 use std::env;
 use std::io::{self, Write};
 use tokio_stream::StreamExt;
+use termion::input::TermRead;
+use termion::raw::IntoRawMode;
+use unicode_width::UnicodeWidthChar;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 struct ChatMessage {
@@ -212,7 +215,7 @@ impl DeepSeekClient {
 fn print_welcome() {
     let welcome = r#"
 ╔══════════════════════════════════════════════════════════════════╗
-║                    🐋 DeepSeek Cli Engineer - Rust                  ║
+║                    🐋 DeepSeek Cli Engineer - Rust               ║
 ║                   由 DeepSeek-R1 推理模型驱动                    ║
 ╚══════════════════════════════════════════════════════════════════╝
 "#;
@@ -237,9 +240,43 @@ fn get_user_input() -> Result<String, Box<dyn std::error::Error>> {
     print!("{}", "🔵 你> ".bright_cyan().bold());
     io::stdout().flush()?;
 
+    // 设置终端为原始模式
+    let stdin = io::stdin();
+    let mut stdout = io::stdout().into_raw_mode()?;
+    stdout.flush()?;
+
     let mut input = String::new();
-    io::stdin().read_line(&mut input)?;
-    Ok(input.trim().to_string())
+    for c in stdin.keys() {
+        match c? {
+            termion::event::Key::Char('\n') => break,
+            termion::event::Key::Char(c) => {
+                input.push(c);
+                print!("{}", c);
+                stdout.flush()?;
+            },
+            termion::event::Key::Backspace => {
+                if !input.is_empty() {
+                    // 获取要删除的字符
+                    if let Some(last_char) = input.chars().last() {
+                        // 删除字符串中的最后一个字符
+                        input.pop();
+                        
+                        // 计算该字符的显示宽度
+                        let char_width = last_char.width().unwrap_or(1);
+                        
+                        // 根据字符宽度删除相应数量的终端显示位置
+                        for _ in 0..char_width {
+                            print!("\x08 \x08");
+                        }
+                        stdout.flush()?;
+                    }
+                }
+            },
+            _ => {}
+        }
+    }
+
+    Ok(input)
 }
 
 #[tokio::main]
