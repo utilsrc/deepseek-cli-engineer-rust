@@ -86,7 +86,7 @@ jobs:
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ env.VERSION }}
-          name: v${{ env.VERSION }}
+          tag_name: ${{ env.VERSION }}
+          name: ${{ env.VERSION }}
           files: |
             *.zip
